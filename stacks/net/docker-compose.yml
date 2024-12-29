@@ -1,0 +1,15 @@
+name: "network"
+
+
+networks:
+  default:
+    # Specify driver options
+    driver: bridge
+    name: "proxy"
+
+services:
+  whoami:
+    container_name: whoami
+    image: traefik/whoami
+    networks:
+    - default

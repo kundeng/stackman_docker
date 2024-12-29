@@ -1,0 +1,23 @@
+
+
+services:
+  ###############################################
+  ####              EXAMPLE                 #####
+  ###############################################
+  shellngn:
+    image: shellngn/pro
+    container_name: shellngn.vlab.cloud.local
+    restart: unless-stopped
+    volumes:
+      - 'shellngn-data:/home/node/server/data'
+    networks:
+      - proxy
+
+volumes:
+  shellngn-data:
+    driver: local
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}

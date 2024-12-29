@@ -1,0 +1,4 @@
+# Ignore environment and data
+.env
+data
+data/*

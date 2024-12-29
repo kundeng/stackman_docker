@@ -1,0 +1,29 @@
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest  # SQL Server 2022 image
+    container_name: sql1  # Name of the container
+    hostname: sql1  # Hostname inside the container
+    ports:
+      - "1433:1433"  # Map host port 1433 to container port 1433
+    environment:
+      ACCEPT_EULA: "Y"  # Accept the End-User Licensing Agreement
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-YourStrong!Passw0rd}  # Set the SA password to "YourStrong!Passw0rd"  # Set a strong SA password
+      # Optional: Set a custom SQL Server collation
+      # MSSQL_COLLATION: "SQL_Latin1_General_CP1_CI_AS"
+    restart: unless-stopped  # Restart policy
+    # Optional: Persist SQL Server data
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+# Optional: Define named volumes for data persistence
+volumes:
+  sqlserver-data:
+    driver: local
+
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}
+

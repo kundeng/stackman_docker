@@ -1,0 +1,79 @@
+name: nginx-proxy-manager
+services:
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: npm
+    restart: unless-stopped
+    ports:
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port:
+      - '81:81' # Admin Web Port:
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+    environment:
+      # Mysql/Maria connection parameters:
+      DB_MYSQL_HOST: "db"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      # DB_MYSQL_PASSWORD: "npm"  # use secret instead
+      DB_MYSQL_PASSWORD__FILE: /run/secrets/NPM_MYSQL_PWD
+      DB_MYSQL_NAME: "npm"
+      # If you would rather use Sqlite uncomment this and remove all DB_MYSQL_* lines above
+      # DB_SQLITE_FILE: "/data/database.sqlite"
+      DISABLE_IPV6: 'true'
+    healthcheck:
+      test: ["CMD", "/bin/check-health"]
+      interval: 10s
+      timeout: 3s
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    secrets:
+      - NPM_MYSQL_PWD
+    depends_on:
+      - db
+    networks:
+      - default
+      - proxy
+
+  db:
+    image: 'jc21/mariadb-aria:latest'
+    container_name: db
+    restart: unless-stopped
+    environment:
+      # MYSQL_ROOT_PASSWORD: "npm"  # use secret instead
+      MYSQL_ROOT_PASSWORD__FILE: /run/secrets/NPM_MYSQL_ROOT_PWD
+      MYSQL_DATABASE: "npm"
+      MYSQL_USER: "npm"
+      # MYSQL_PASSWORD: "npm"  # use secret instead
+      MYSQL_PASSWORD__FILE: /run/secrets/NPM_MYSQL_PWD
+      MARIADB_AUTO_UPGRADE: '1'
+    volumes:
+      - maria_data:/var/lib/mysql
+    networks:
+      - default
+    secrets:
+      - NPM_MYSQL_ROOT_PWD
+      - NPM_MYSQL_PWD
+
+secrets:
+  NPM_MYSQL_ROOT_PWD:
+    file: .secrets/npm_mysql_root_pwd.txt
+  NPM_MYSQL_PWD:
+    file: .secrets/npm_mysql_pwd.txt
+
+volumes:
+  npm_data:
+    driver: local
+  npm_letsencrypt:
+    driver: local
+  maria_data:
+    driver: local
+
+networks:
+  default:
+  # Specify driver options
+    driver: bridge
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}

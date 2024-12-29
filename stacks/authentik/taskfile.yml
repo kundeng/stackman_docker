@@ -1,0 +1,35 @@
+version: '3'
+
+vars:
+  FORCE: '{{default "false" .FORCE}}'
+
+tasks:
+
+  default:
+    desc: Default task
+    cmds:
+      - echo "use this taskfile to manage stack specific tasks"
+        
+  check-deps:
+    desc: Verify required dependencies are installed
+    cmds:
+      - |
+        which pwgen || (echo "pwgen is required but not installed. Install pwgen first" && exit 1)
+    silent: true
+
+  stage:
+    desc: Generate required secrets and configure environment
+    deps: [check-deps]
+    cmds:
+      - |
+        PG_PASS_VALUE=$(grep "^PG_PASS=" .env | cut -d= -f2- || echo "")
+        if [ -z "$PG_PASS_VALUE" ] || [[ "$PG_PASS_VALUE" =~ ^\{\{.*\}\}$ ]] || [ "{{.FORCE}}" = "true" ]; then
+          sed -i '/^PG_PASS=/d' .env
+          echo "PG_PASS=$(pwgen -s 40 1)" >> .env
+        fi
+      - |
+        AUTH_KEY_VALUE=$(grep "^AUTHENTIK_SECRET_KEY=" .env | cut -d= -f2- || echo "")
+        if [ -z "$AUTH_KEY_VALUE" ] || [[ "$AUTH_KEY_VALUE" =~ ^\{\{.*\}\}$ ]] || [ "{{.FORCE}}" = "true" ]; then
+          sed -i '/^AUTHENTIK_SECRET_KEY=/d' .env
+          echo "AUTHENTIK_SECRET_KEY=$(pwgen -s 50 1)" >> .env
+        fi

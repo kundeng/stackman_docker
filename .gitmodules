@@ -1,0 +1,3 @@
+[submodule "stacks/retool-onpremise"]
+	path = stacks/retool-onpremise
+	url = https://github.com/tryretool/retool-onpremise.git

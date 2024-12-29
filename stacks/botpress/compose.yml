@@ -1,0 +1,18 @@
+
+services:
+  botpress:
+    container_name: botpress.vlab.local
+    image: botpress/server
+    ports:
+      - "7001:3000"
+    environment:
+      - BP_DATABASE_URL=sqlite:./data/botpress.db
+    volumes:
+      - botpress_data:/botpress/data
+
+
+volumes:
+  botpress_data:
+    driver: local
+
+
