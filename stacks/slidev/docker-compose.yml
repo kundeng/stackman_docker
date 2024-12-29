@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  slidev:
+    image: tangramor/slidev:latest
+    container_name: slidev
+    ports:
+      - "3030:3030"
+    volumes:
+      - ${SLIDEV_DIR:-.}:/slidev
+    environment:
+      - NPM_MIRROR=https://registry.npmmirror.com
+    user: "node"
+    stdin_open: true
+    tty: true
+    restart: "no"
