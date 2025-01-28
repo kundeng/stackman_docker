@@ -1,0 +1,45 @@
+version: '3'
+services:
+  cache:
+    image: redis:6
+    container_name: ${STACK}-cache.${DOMAIN}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(redis-cli ping) = 'PONG' ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  directus:
+    image: directus/directus:11.3.5
+    container_name: ${STACK}.${DOMAIN}
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    depends_on:
+      cache:
+        condition: service_healthy
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: ${DB_CLIENT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${MSSQL_DATABASE}
+      DB_USER: ${MSSQL_USER}
+      DB_PASSWORD: ${MSSQL_PASSWORD}
+      CACHE_ENABLED: "true"
+      CACHE_AUTO_PURGE: "true"
+      CACHE_STORE: "redis"
+      REDIS: "redis://cache:6379"
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}

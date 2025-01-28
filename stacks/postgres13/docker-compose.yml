@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgis/postgis:13-master
+    container_name: ${STACK}-db.${DOMAIN}
+    hostname: postgres13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-directus}
+      POSTGRES_USER: ${POSTGRES_USER:-sa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Welcome1}
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "--host=localhost", "--username=${POSTGRES_USER:-sa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres-data:
+    driver: local
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}
