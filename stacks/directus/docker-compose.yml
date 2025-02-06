@@ -29,9 +29,9 @@ services:
       DB_CLIENT: ${DB_CLIENT}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
-      DB_DATABASE: ${MSSQL_DATABASE}
-      DB_USER: ${MSSQL_USER}
-      DB_PASSWORD: ${MSSQL_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       CACHE_ENABLED: "true"
       CACHE_AUTO_PURGE: "true"
       CACHE_STORE: "redis"
